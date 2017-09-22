@@ -11,7 +11,7 @@ class App extends Component {
 
     // construct the position vector here, because if we use 'new' within render,
     // React will think that things have changed when they have not.
-    this.cameraPosition = new THREE.Vector3(10, -5, 15)
+    this.cameraPosition = new THREE.Vector3(0, -15, 5)
     this.lookAtPositon = new THREE.Vector3(0, 0, 0)
 
     this.state = {
