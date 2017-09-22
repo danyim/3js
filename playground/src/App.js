@@ -2,8 +2,10 @@ import React, { Component } from 'react'
 import './App.css'
 import * as THREE from 'three'
 import React3 from 'react-three-renderer'
+// import * as dg from 'dis-gui'
 import stars from './stars.jpg'
 import alex from './alex.jpg'
+import testVideo from './test.mp4'
 
 class App extends Component {
   constructor(props, context) {
@@ -11,7 +13,7 @@ class App extends Component {
 
     // construct the position vector here, because if we use 'new' within render,
     // React will think that things have changed when they have not.
-    this.cameraPosition = new THREE.Vector3(0, -5, 2)
+    this.cameraPosition = new THREE.Vector3(0, -5, 10)
     this.lookAtPositon = new THREE.Vector3(0, 0, 0)
 
     this.state = {
@@ -26,12 +28,24 @@ class App extends Component {
       // React will be sure that the rotation has now updated.
       this.setState({
         cubeRotation: new THREE.Euler(
-          this.state.cubeRotation.x + 0.001,
-          this.state.cubeRotation.y + 0.001,
+          this.state.cubeRotation.x + 0.01,
+          this.state.cubeRotation.y + 0.01,
           0
         )
       })
     }
+  }
+
+  componentDidMount() {
+    const videoTexture = new THREE.VideoTexture(this.video)
+    videoTexture.minFilter = THREE.LinearFilter
+    videoTexture.format = THREE.RGBFormat
+
+    this.mesh.material = new THREE.MeshBasicMaterial({
+      map: videoTexture,
+      overdraw: true,
+      side: THREE.DoubleSide
+    })
   }
 
   render() {
@@ -40,13 +54,35 @@ class App extends Component {
 
     return (
       <div>
+        <video
+          id="video"
+          width={640}
+          height={360}
+          autoPlay
+          loop
+          playsInline
+          style={{ display: 'none' }}
+          ref={r => (this.video = r)}
+          src={testVideo}
+        />
+        <div>
+          <h2>Panel</h2>
+          {/*
+          <dg.GUI>
+            <dg.Number label="Camera X" value={0} />
+            <dg.Number label="Camera Y" value={-5} />
+            <dg.Number label="Camera Z" value={2} />
+          </dg.GUI>
+          */}
+        </div>
         <React3
           mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
           width={width}
           height={height}
+          antialias={true}
           onAnimate={this._onAnimate}
         >
-          <scene background={4606296}>
+          <scene>
             <perspectiveCamera
               name="camera"
               fov={80}
@@ -57,6 +93,11 @@ class App extends Component {
               position={this.cameraPosition}
             />
             <ambientLight color={0xffffff} intensity={1.5} />
+
+            <mesh name="screenPlane" ref={r => (this.mesh = r)}>
+              <planeGeometry width={20} height={20} />
+              <meshLambertMaterial color={'#fffff'} />
+            </mesh>
             <mesh>
               <planeGeometry
                 width={15}
