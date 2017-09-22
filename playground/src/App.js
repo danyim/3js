@@ -11,7 +11,7 @@ class App extends Component {
 
     // construct the position vector here, because if we use 'new' within render,
     // React will think that things have changed when they have not.
-    this.cameraPosition = new THREE.Vector3(0, -15, 5)
+    this.cameraPosition = new THREE.Vector3(0, -5, 2)
     this.lookAtPositon = new THREE.Vector3(0, 0, 0)
 
     this.state = {
@@ -26,8 +26,8 @@ class App extends Component {
       // React will be sure that the rotation has now updated.
       this.setState({
         cubeRotation: new THREE.Euler(
-          this.state.cubeRotation.x + 0.01,
-          this.state.cubeRotation.y + 0.01,
+          this.state.cubeRotation.x + 0.001,
+          this.state.cubeRotation.y + 0.001,
           0
         )
       })
@@ -46,7 +46,7 @@ class App extends Component {
           height={height}
           onAnimate={this._onAnimate}
         >
-          <scene>
+          <scene background={4606296}>
             <perspectiveCamera
               name="camera"
               fov={80}
