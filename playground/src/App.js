@@ -47,11 +47,8 @@ class App extends Component {
     if (window) window.addEventListener('keypress', this.handleKeyDown)
 
     this.scene.add(
-      this.createVideoMesh(testVideo, 3, 3, { x: 3, y: 3, z: 0.6 })
+      this.createVideoMesh(testVideo, 5, 5, { x: 0, y: 0, z: 0.1 })
     )
-    // this.scene.add(
-    //   this.createVideoMesh(testVideo, 3, 3, { x: -3, y: 2, z: 0.7 })
-    // )
   }
 
   handleKeyDown = evt => {
@@ -169,7 +166,7 @@ class App extends Component {
       material
     )
 
-    if (position === null) {
+    if (position !== null) {
       mesh.position.set(position.x, position.y, position.z)
     }
 
