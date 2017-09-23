@@ -33,10 +33,10 @@ class App extends Component {
       // pretend cubeRotation is immutable.
       // this helps with updates and pure rendering.
       // React will be sure that the rotation has now updated.
-      this.setState({
+      this.setState(state => {
         cubeRotation: new THREE.Euler(
-          this.state.cubeRotation.x,
-          this.state.cubeRotation.y + 0.01,
+          state.cubeRotation.x,
+          state.cubeRotation.y + 0.1,
           0
         )
       })
@@ -46,15 +46,12 @@ class App extends Component {
   componentDidMount() {
     if (window) window.addEventListener('keypress', this.handleKeyDown)
 
-    const videoTexture = new THREE.VideoTexture(this.video)
-    videoTexture.minFilter = THREE.LinearFilter
-    videoTexture.format = THREE.RGBFormat
-
-    this.mesh.material = new THREE.MeshBasicMaterial({
-      map: videoTexture,
-      overdraw: true,
-      side: THREE.DoubleSide
-    })
+    this.scene.add(
+      this.createVideoMesh(testVideo, 3, 3, { x: 3, y: 3, z: 0.6 })
+    )
+    // this.scene.add(
+    //   this.createVideoMesh(testVideo, 3, 3, { x: -3, y: 2, z: 0.7 })
+    // )
   }
 
   handleKeyDown = evt => {
@@ -121,8 +118,8 @@ class App extends Component {
     this.setState({
       camera: {
         x: 0,
-        y: 0.6,
-        z: 3
+        y: -0.4,
+        z: 1.5
       },
       lookAt: {
         x: 0,
@@ -147,6 +144,38 @@ class App extends Component {
     })
   }
 
+  createVideoMesh = (src, width, height, position = null) => {
+    const video = document.createElement('video')
+    video.width = 640
+    video.height = 360
+    video.loop = true
+    video.muted = true
+    video.src = src
+    video.setAttribute('webkit-playsinline', 'webkit-playsinline')
+    video.play()
+
+    const texture = new THREE.VideoTexture(video)
+    texture.minFilter = THREE.LinearFilter
+    texture.format = THREE.RGBFormat
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      overdraw: true,
+      side: THREE.DoubleSide
+    })
+
+    const mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(width, height),
+      material
+    )
+
+    if (position === null) {
+      mesh.position.set(position.x, position.y, position.z)
+    }
+
+    return mesh
+  }
+
   render() {
     const { camera, lookAt } = this.state
     const cameraPosition = new THREE.Vector3(camera.x, camera.y, camera.z)
@@ -157,17 +186,6 @@ class App extends Component {
 
     return (
       <div className="app">
-        <video
-          id="video"
-          width={640}
-          height={360}
-          autoPlay
-          loop
-          playsInline
-          style={{ display: 'none' }}
-          ref={r => (this.video = r)}
-          src={testVideo}
-        />
         <div className="panel">
           <h5>Panel</h5>
           <p>Camera: {`(${camera.x}, ${camera.y}, ${camera.z})`}</p>
@@ -191,7 +209,7 @@ class App extends Component {
           antialias={true}
           onAnimate={this._onAnimate}
         >
-          <scene>
+          <scene ref={r => (this.scene = r)}>
             <perspectiveCamera
               name="camera"
               fov={80}
@@ -203,21 +221,6 @@ class App extends Component {
             />
             <ambientLight color={0xffffff} intensity={1.5} />
 
-            <mesh
-              name="screenPlane"
-              ref={r => (this.mesh = r)}
-              position={{ x: 0, y: 0, z: 0.5 }}
-            >
-              <planeGeometry width={7} height={7} />
-              {/*
-              <sphereGeometry
-                radius={3}
-                widthSegments={20}
-                heightSegments={20}
-              />
-            */}
-              <meshLambertMaterial color={0xffffff} />
-            </mesh>
             <mesh>
               <planeGeometry
                 width={15}
@@ -231,7 +234,7 @@ class App extends Component {
             </mesh>
             <mesh
               rotation={this.state.cubeRotation}
-              position={{ x: 0, y: 0, z: 3 }}
+              position={{ x: 0, y: 0, z: 1.5 }}
             >
               <boxGeometry width={1} height={1} depth={1} />
               <meshStandardMaterial
