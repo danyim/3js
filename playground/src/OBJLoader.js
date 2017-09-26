@@ -584,6 +584,7 @@ const THREEOBJLoader = (function() {
     }
   }
 
+  // Hacky, but this works
   return { ...THREE, OBJLoader }
 })()
 
