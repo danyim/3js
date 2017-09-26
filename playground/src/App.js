@@ -5,7 +5,7 @@ import './App.css'
 import React3 from 'react-three-renderer'
 import stars from './stars.jpg'
 import testVideo from './walking.mp4'
-import bear from './R2D2.obj'
+import objFile from './R2D2.obj'
 import THREE from './OBJLoader'
 
 class App extends Component {
@@ -55,7 +55,7 @@ class App extends Component {
     )
 
     const loader = new THREE.OBJLoader()
-    loader.load(bear, object => {
+    loader.load(objFile, object => {
       object.traverse(child => {
         if (child instanceof THREE.Mesh) {
           child.material = new THREE.MeshStandardMaterial({
