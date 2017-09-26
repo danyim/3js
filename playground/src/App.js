@@ -1,11 +1,15 @@
 import React, { Component } from 'react'
 import './App.css'
-import * as THREE from 'three'
+// import * as uTHREE from 'three'
 import React3 from 'react-three-renderer'
 // import * as dg from 'dis-gui'
 import stars from './stars.jpg'
 import alex from './alex.jpg'
 import testVideo from './test.mp4'
+import bear from './teddybear.obj'
+import THREE from './OBJLoader'
+
+console.log('THREE', THREE)
 
 class App extends Component {
   constructor(props, context) {
@@ -16,15 +20,16 @@ class App extends Component {
     this.state = {
       cubeRotation: new THREE.Euler(),
       camera: {
-        x: -0.2,
-        y: -0.2,
-        z: 3
+        x: 0,
+        y: 0,
+        z: 10
       },
       lookAt: {
         x: 0,
         y: 0,
         z: 0
-      }
+      },
+      isVideoPlaying: false
     }
 
     this._onAnimate = () => {
@@ -48,6 +53,34 @@ class App extends Component {
 
     this.scene.add(
       this.createVideoMesh(testVideo, 5, 5, { x: 0, y: 0, z: 0.1 })
+    )
+
+    console.log('attempting to load ', bear)
+    const loader = new THREE.OBJLoader()
+
+    loader.load(
+      bear,
+      // Function when resource is loaded
+      object => {
+        object.traverse(child => {
+          if (child instanceof THREE.Mesh) {
+            child.material = new THREE.MeshStandardMaterial({
+              roughness: 0.5,
+              metalness: 0.5,
+              emissive: 0,
+              wireframe: true,
+              color: 0xd2691e
+            })
+            child.scale.set(0.05, 0.05, 0.05)
+          }
+        })
+        object.position.x = 0
+        object.position.y = 0
+        object.position.z = 1
+        // object.up(new THREE.Vector3(0, 0, 1))
+        object.lookAt(new THREE.Vector3(0, 15, -1))
+        this.scene.add(object)
+      }
     )
   }
 
@@ -107,8 +140,19 @@ class App extends Component {
       this.switchFPP()
     } else if (key === '2') {
       this.switchTPP()
+    } else if (key === ' ') {
+      this.setState(state => {
+        if (state.isVideoPlaying) {
+          this.video.pause()
+        } else {
+          this.video.play()
+        }
+        return {
+          isVideoPlaying: !state.isVideoPlaying
+        }
+      })
     }
-    console.log('keydown', evt.keyCode)
+    // console.log('keydown', evt.keyCode)
   }
 
   switchFPP = () => {
@@ -149,7 +193,7 @@ class App extends Component {
     video.muted = true
     video.src = src
     video.setAttribute('webkit-playsinline', 'webkit-playsinline')
-    video.play()
+    this.video = video
 
     const texture = new THREE.VideoTexture(video)
     texture.minFilter = THREE.LinearFilter
@@ -173,6 +217,34 @@ class App extends Component {
     return mesh
   }
 
+  handleClick = evt => {
+    const { top, left, width, height } = this.container.getBoundingClientRect()
+
+    const x = evt.nativeEvent.clientX
+    const y = evt.nativeEvent.clientY
+
+    const deltaX = width / 2 + left - x
+    const deltaY = height / 2 + top - y
+    // console.log('x diff', deltaX)
+    // console.log('y diff', deltaY)
+
+    if (deltaY > 0) {
+      const msToPlay = 4000 * deltaY / (height / 2)
+      console.log(`dist: ${deltaY}; playing for ${msToPlay.toFixed(0)}ms`)
+      this.playVideoForNMilliseconds(msToPlay)
+    }
+  }
+
+  playVideoForNMilliseconds = ms => {
+    this.video.play()
+    setTimeout(() => {
+      this.video.pause()
+      this.setState({
+        isVideoPlaying: false
+      })
+    }, ms)
+  }
+
   render() {
     const { camera, lookAt } = this.state
     const cameraPosition = new THREE.Vector3(camera.x, camera.y, camera.z)
@@ -182,7 +254,11 @@ class App extends Component {
     const height = window.innerHeight // canvas height
 
     return (
-      <div className="app">
+      <div
+        className="app"
+        ref={ref => (this.container = ref)}
+        onClick={this.handleClick}
+      >
         <div className="panel">
           <h5>Panel</h5>
           <p>Camera: {`(${camera.x}, ${camera.y}, ${camera.z})`}</p>
@@ -191,13 +267,13 @@ class App extends Component {
             <button onClick={this.switchFPP}>First Person Perspective</button>
             <button onClick={this.switchTPP}>Third Person Perspective</button>
           </div>
-          {/*
-          <dg.GUI>
-            <dg.Number label="Camera X" value={0} />
-            <dg.Number label="Camera Y" value={-5} />
-            <dg.Number label="Camera Z" value={2} />
-          </dg.GUI>
-          */}
+          Press <strong>w, a, s, d</strong> to move the camera<br />
+          <strong>q and r</strong> to change the Z-axis<br />
+          <strong>space</strong> to pause/play the video<br />
+          <p>
+            Video is{' '}
+            <strong>{this.state.isVideoPlaying ? 'playing' : 'paused'}</strong>
+          </p>
         </div>
         <React3
           mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
@@ -229,6 +305,7 @@ class App extends Component {
                 <texture url={stars} />
               </meshLambertMaterial>
             </mesh>
+            {/*
             <mesh
               rotation={this.state.cubeRotation}
               position={{ x: 0, y: 0, z: 1.5 }}
@@ -242,8 +319,9 @@ class App extends Component {
                 <texture url={alex} />
               </meshStandardMaterial>
             </mesh>
+            */}
             <mesh position={{ x: lookAt.x, y: lookAt.y, z: lookAt.z }}>
-              <boxGeometry width={0.5} height={0.5} depth={0.5} />
+              <boxGeometry width={0.15} height={0.15} depth={0.15} />
               <meshLambertMaterial color={0xff0000} />
             </mesh>
           </scene>
