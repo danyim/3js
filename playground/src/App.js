@@ -236,11 +236,18 @@ class App extends Component {
   }
 
   playVideoForNMilliseconds = ms => {
-    this.video.play()
+    this.setState(state => {
+      this.video.play()
+      return {
+        isVideoPlaying: true
+      }
+    })
     setTimeout(() => {
-      this.video.pause()
-      this.setState({
-        isVideoPlaying: false
+      this.setState(state => {
+        this.video.pause()
+        return {
+          isVideoPlaying: false
+        }
       })
     }, ms)
   }
@@ -272,7 +279,12 @@ class App extends Component {
           <strong>space</strong> to pause/play the video<br />
           <p>
             Video is{' '}
-            <strong>{this.state.isVideoPlaying ? 'playing' : 'paused'}</strong>
+            {this.state.isVideoPlaying === true && (
+              <strong style={{ color: 'green' }}>playing</strong>
+            )}
+            {this.state.isVideoPlaying === false && (
+              <strong style={{ color: 'red' }}>paused</strong>
+            )}
           </p>
         </div>
         <React3
