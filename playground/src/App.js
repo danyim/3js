@@ -5,7 +5,7 @@ import React3 from 'react-three-renderer'
 // import * as dg from 'dis-gui'
 import stars from './stars.jpg'
 import alex from './alex.jpg'
-import testVideo from './test.mp4'
+import testVideo from './walking.mp4'
 import bear from './teddybear.obj'
 import THREE from './OBJLoader'
 
