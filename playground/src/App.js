@@ -4,7 +4,7 @@ import './App.css'
 // import * as dg from 'dis-gui'
 import React3 from 'react-three-renderer'
 import stars from './stars.jpg'
-import testVideo from './walking.mp4'
+import testVideo from './ground_plane.mp4'
 import objFile from './R2D2.obj'
 import THREE from './OBJLoader'
 
@@ -51,27 +51,25 @@ class App extends Component {
     if (window) window.addEventListener('keypress', this.handleKeyDown)
 
     this.scene.add(
-      this.createVideoMesh(testVideo, 5, 5, { x: 0, y: 0, z: 0.1 })
+      this.createVideoMesh(testVideo, 10, 10, { x: 0, y: 0, z: 0.1 })
     )
 
     const loader = new THREE.OBJLoader()
     loader.load(objFile, object => {
       object.traverse(child => {
         if (child instanceof THREE.Mesh) {
-          child.material = new THREE.MeshStandardMaterial({
+          child.material = new THREE.MeshLambertMaterial({
             roughness: 0.5,
             metalness: 0.5,
-            emissive: 0,
-            wireframe: true,
-            color: 0xd2691e
+            color: 0xffffff
           })
-          child.scale.set(0.02, 0.02, 0.02)
+          child.scale.set(0.025, 0.025, 0.025)
         }
       })
-      object.position.x = 0
-      object.position.y = 0
+      object.position.x = -0.5
+      object.position.y = -4
       object.position.z = 0
-      object.lookAt(new THREE.Vector3(0, 15, -1))
+      object.lookAt(new THREE.Vector3(-0.5, 15, -1))
       this.scene.add(object)
     })
   }
@@ -166,8 +164,8 @@ class App extends Component {
     this.setState({
       camera: {
         x: 0,
-        y: 0,
-        z: 10
+        y: -6.0,
+        z: 2.8
       },
       lookAt: {
         x: 0,
@@ -349,17 +347,24 @@ class App extends Component {
               lookAt={lookAtPositon}
               position={cameraPosition}
             />
-            <ambientLight color={0xffffff} intensity={1.5} />
+            <directionalLight
+              intensity={1}
+              lookAt={{
+                x: -0.5,
+                y: -4,
+                z: -10
+              }}
+            />
 
             <mesh>
               <planeGeometry
-                width={15}
-                height={15}
+                width={10}
+                height={10}
                 widthSegments={1}
                 heightSegments={1}
               />
               <meshLambertMaterial side={THREE.DoubleSide}>
-                <texture url={stars} />
+                {/* <texture url={stars} /> */}
               </meshLambertMaterial>
             </mesh>
             {/*
